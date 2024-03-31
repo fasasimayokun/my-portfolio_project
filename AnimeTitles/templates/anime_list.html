@@ -2,24 +2,13 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- HTML Template -->
-<div id="anime-list">
-    <!-- Anime data will be rendered here -->
-</div>
+<body>
+    <h1>Anime Titles</h1>
+    <ul>
+        {% for anime in anime_titles %}
+        <li><a href="{% url "anime_reviews" anime.id %}">{{ anime.title }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
 
-<script>
-    // Fetch anime data from API endpoint
-    fetch('http://localhost:8000/api/animetitle/anime-titles/')
-        .then(response => response.json())
-        .then(data => {
-            // Render anime data in HTML
-            const animeList = document.getElementById('anime-list');
-            data.forEach(anime => {
-                const animeDiv = document.createElement('div');
-                animeDiv.textContent = anime.title;
-                animeList.appendChild(animeDiv);
-            });
-        })
-        .catch(error => console.error('Error fetching anime:', error));
-</script>
 {% endblock %}

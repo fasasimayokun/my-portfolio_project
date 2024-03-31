@@ -5,14 +5,28 @@ from rest_framework import status
 from django.http import Http404
 from .models import AnimeTitle, Genre, AnimeGenre
 from .serializers import GenreSerializer, AnimeTitleSerializer
+from django.template.response import TemplateResponse
+from Reviews.models import Review
 import requests
 
 # Create your views here.
+
+
+def anime_reviews(request, anime_title_id):
+    # Fetch all reviews for the specified anime title
+    reviews = Review.objects.filter(anime_title_id=anime_title_id)
+    return render(request, 'anime_reviews.html', {'reviews': reviews})
+
+
 class AnimeTitleList(APIView):
+    template_name = 'anime_list.html'
+
     def get(self, request, format=None):
         anime_titles = AnimeTitle.objects.all()
         serializer = AnimeTitleSerializer(anime_titles, many=True)
-        return Response(serializer.data)
+        context = {'anime_titles': serializer.data}  # Pass serialized data to template context
+        return TemplateResponse(request, self.template_name, context)  # Render the template with context data
+        #return Response(serializer.data)
     
     def post(self, request, format=None):
         serializer = AnimeTitleSerializer(data=request.data)
