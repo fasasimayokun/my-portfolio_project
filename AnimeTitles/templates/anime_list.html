@@ -1,14 +1,32 @@
 <!-- anime_list.html -->
 {% extends "base.html" %}
 {% block content %}
-
+{% load static %}
 <body>
-    <h1>Anime Titles</h1>
-    <ul>
+    <div class="container">
         {% for anime in anime_titles %}
-        <li><a href="{% url "anime_reviews" anime.id %}">{{ anime.title }}</a></li>
+            
+            <div>
+                {% if anime.image %}
+                    <img src="{{ anime.image.url }}" alt="anime image">
+                {% endif %}
+                <h1><a href="{% url 'anime-reviews-list' anime.id %}">{{ anime.title }}</a></h1>
+                <div>
+                    <p>Genres:
+                        {% for anime_genre in anime.animegenre_set.all %}
+                            {{ anime_genre.genre.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                <div>
+                    <p>released on: {{ anime.release_date }}</p>
+                </div>
+                <div>
+                    <p>description: {{ anime.description }}</p>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 </body>
 
 {% endblock %}

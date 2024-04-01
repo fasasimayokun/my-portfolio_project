@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<body>
+    <h1>Reviews for {{ anime_title }}</h1>
+    <div>
+        <p>Write a Review</p>
+        <form method="post">
+        {% csrf_token %}
+        {{ review_form.as_p }}
+        {{ rating_form.as_p }}
+        <button class='btn btn-secondary' type="submit">Submit</button>
+        </form>
+    </div>
+    <div>
+        <ul>
+            {% for review in reviews %}
+                <li>
+                    {% if review.author.profile.profile_pic %}
+                        <img src="{{ review.author.profile.profile_pic.url }}" alt="User Image">
+                    {% endif %} <br>
+                    <strong>{{ review.author.username }}</strong>
+                    <ul>
+                        <li>{{ review.content }} <br>
+                            <span>Written on: {{ review.created_at }}</span> <br>
+                            <a href="{% url 'anime-reviews-update' review.id %}">edit</a> | <a href="{% url 'anime-review-delete' review.id %}">delete</a>
+                        </li>
+                    </ul>
+                </li>
+            {% empty %}
+                <li>No reviews available.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+{% endblock %}
