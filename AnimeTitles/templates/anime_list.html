@@ -1,32 +1,29 @@
-<!-- anime_list.html -->
 {% extends "base.html" %}
 {% block content %}
 {% load static %}
 <body>
     <div class="container">
-        {% for anime in anime_titles %}
-            
-            <div>
-                {% if anime.image %}
-                    <img src="{{ anime.image.url }}" alt="anime image">
-                {% endif %}
-                <h1><a href="{% url 'anime-reviews-list' anime.id %}">{{ anime.title }}</a></h1>
-                <div>
-                    <p>Genres:
-                        {% for anime_genre in anime.animegenre_set.all %}
-                            {{ anime_genre.genre.name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </p>
+        <div class="row">
+            {% for anime in anime_titles %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        {% if anime.image %}
+                            <img src="{{ anime.image.url }}" class="card-img-top" alt="anime image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{% url 'anime-reviews-list' anime.id %}">{{ anime.title }}</a></h5>
+                            <p class="card-text">Genres:
+                                {% for anime_genre in anime.animegenre_set.all %}
+                                    {{ anime_genre.genre.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                            <p class="card-text">Released on: {{ anime.release_date }}</p>
+                            <p class="card-text">Description: {{ anime.description }}</p>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p>released on: {{ anime.release_date }}</p>
-                </div>
-                <div>
-                    <p>description: {{ anime.description }}</p>
-                </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </body>
-
 {% endblock %}

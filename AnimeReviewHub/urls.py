@@ -22,6 +22,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Users.urls')),
+    path('source/', include('Sources.urls')),
     path('api/animetitle/', include('AnimeTitles.urls')),
     path('api/reviews/', include('Reviews.urls')),
 ]

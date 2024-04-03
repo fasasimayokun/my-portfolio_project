@@ -38,6 +38,7 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
+    return redirect('login')
 
 def user_registration(request):
     if request.method == 'POST':

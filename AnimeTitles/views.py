@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from django.template.response import TemplateResponse
 from Reviews.models import Review, Rating
 from Reviews.forms import ReviewForm, RatingForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 import requests
 
 # Create your views here.
@@ -21,42 +23,76 @@ def anime_reviews_list(request, anime_title_id):
         review_form = ReviewForm(request.POST)
         rating_form = RatingForm(request.POST)
         if review_form.is_valid() and rating_form.is_valid():
-            review = review_form.save(commit=False)
-            review.author = request.user
-            review.anime_title = anime_title
-            review.save()
-            rating = rating_form.save(commit=False)
-            rating.review = review
-            rating.user = request.user
-            rating.save()
-            return redirect('anime-reviews-list', anime_title_id=anime_title_id)
+            author = request.user
+            anime_title = anime_title
+            content = review_form.cleaned_data['content']
+
+            # Check if a review with the same author and anime title already exists
+            existing_review = Review.objects.filter(author=author, anime_title=anime_title).first()
+            if existing_review:
+                # Inform the user that they've already reviewed this anime
+                messages.success(request, 'You have already reviewed this anime.')
+                return render(request, 'anime_reviews_list.html', {'anime_title': anime_title,
+                                                                    'review_form': review_form,
+                                                                    'rating_form': rating_form,
+                                                                    'reviews': reviews,
+                                                                    'error_message': 'You have already reviewed this anime.'})
+
+            # Create a new review
+            try:
+                new_review = review_form.save(commit=False)
+                new_review.author = author
+                new_review.anime_title = anime_title
+                new_review.save()
+                rating = rating_form.save(commit=False)
+                rating.review = new_review
+                rating.user = author
+                rating.save()
+                messages.success(request, 'review created successfully!.')
+                return redirect('anime-reviews-list', anime_title_id=anime_title_id)
+            except IntegrityError:
+                # Handle IntegrityError if there's a concurrent creation attempt
+                return render(request, 'anime_reviews_list.html', {'anime_title': anime_title,
+                                                                    'review_form': review_form,
+                                                                    'rating_form': rating_form,
+                                                                    'reviews': reviews,
+                                                                    'error_message': 'Failed to create review due to database error.'})
     else:
         review_form = ReviewForm()
         rating_form = RatingForm()
 
     return render(request, 'anime_reviews_list.html', {'anime_title': anime_title,
-                                                  'review_form': review_form,
-                                                  'rating_form': rating_form,
-                                                  'reviews': reviews})
-
+                                                       'review_form': review_form,
+                                                       'rating_form': rating_form,
+                                                       'reviews': reviews})
 
 def anime_reviews_update(request, review_id):
     review = get_object_or_404(Review, id=review_id)
 
-    # Check if the user is the author of the review
-    if request.method == 'POST':
-        review_form = ReviewForm(request.POST, instance=review)
-        rating_instance = review.rating.first()  # Assuming each review has only one rating
-        rating_form = RatingForm(request.POST, instance=rating_instance)
-        if review_form.is_valid() and rating_form.is_valid():
-            review_form.save()
-            rating_form.save()
-            return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)  # Redirect to the review list page
+    # Ensure that only the author of the review can update it
+    if request.user == review.author:
+        if request.method == 'POST':
+            review_form = ReviewForm(request.POST, instance=review)
+            rating_form = RatingForm(request.POST)
+            if review_form.is_valid() and rating_form.is_valid():
+                # Update the review content
+                review = review_form.save(commit=False)
+                review.author = request.user
+                review.save()
+
+                # Update or create the rating associated with the review
+                rating, _ = Rating.objects.get_or_create(review=review, defaults={'user': request.user})
+                rating.rating = rating_form.cleaned_data['rating']
+                rating.save()
+
+                return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)
+        else:
+            review_form = ReviewForm(instance=review)
+            rating = review.rating.first()  # Assuming a one-to-one relationship between Review and Rating
+            rating_form = RatingForm(instance=rating)
+        return render(request, 'anime_review_update.html', {'review_form': review_form, 'rating_form': rating_form, 'review': review})
     else:
-        review_form = ReviewForm(instance=review)
-        rating_instance = review.rating.first()  # Assuming each review has only one rating
-        rating_form = RatingForm(instance=rating_instance)
-    return render(request, 'anime_review_update.html', {'review_form': review_form, 'rating_form': rating_form, 'review': review})
+        return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)  # Redirect to some other page or handle unauthorized access
 
 
 def anime_review_delete(request, review_id):
@@ -65,15 +101,52 @@ def anime_review_delete(request, review_id):
     review.delete()
     return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)
 
+
+def anime_title_list(request):
+    anime_titles = AnimeTitle.objects.all()
+    return render(request, 'anime_list.html', {'anime_titles': anime_titles})
+
+# def anime_title_detail(request, pk):
+#     anime_title = get_object_or_404(AnimeTitle, pk=pk)
+#     return render(request, 'anime_title_detail.html', {'anime_title': anime_title})
+
+# def anime_title_create(request):
+#     if request.method == 'POST':
+#         form = AnimeTitleForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('anime_title_list')
+#     else:
+#         form = AnimeTitleForm()
+#     return render(request, 'anime_title_form.html', {'form': form})
+
+# def anime_title_update(request, pk):
+#     anime_title = get_object_or_404(AnimeTitle, pk=pk)
+#     if request.method == 'POST':
+#         form = AnimeTitleForm(request.POST, request.FILES, instance=anime_title)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('anime_title_detail', pk=pk)
+#     else:
+#         form = AnimeTitleForm(instance=anime_title)
+#     return render(request, 'anime_title_form.html', {'form': form})
+
+# def anime_title_delete(request, pk):
+#     anime_title = get_object_or_404(AnimeTitle, pk=pk)
+#     if request.method == 'POST':
+#         anime_title.delete()
+#         return redirect('anime_title_list')
+#     return render(request, 'anime_title_confirm_delete.html', {'anime_title' : anime_title})
+
 class AnimeTitleList(APIView):
-    template_name = 'anime_list.html'
+    #template_name = 'anime_list.html'
 
     def get(self, request, format=None):
         anime_titles = AnimeTitle.objects.all()
         serializer = AnimeTitleSerializer(anime_titles, many=True)
-        context = {'anime_titles': serializer.data}  # Pass serialized data to template context
-        return TemplateResponse(request, self.template_name, context)  # Render the template with context data
-        #return Response(serializer.data)
+        # context = {'anime_titles': serializer.data}  # Pass serialized data to template context
+        # return TemplateResponse(request, self.template_name, context)  # Render the template with context data
+        return Response(serializer.data)
     
     def post(self, request, format=None):
         serializer = AnimeTitleSerializer(data=request.data)
