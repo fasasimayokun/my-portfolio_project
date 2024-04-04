@@ -1,35 +1,34 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from bs4 import BeautifulSoup
-from django.contrib.auth.models import User
-from .models import Source, ExternalReview
-from AnimeTitles.models import AnimeTitle
-import requests
+from .models import ExternalAnimeTitle, ExternalReview, ExternalSource
 
+def review_list(request):
+    reviews = ExternalReview.objects.all()
+    return render(request, 'review_list.html', {'reviews': reviews})
 
-def fetch_external_reviews(anime_title):
-    url = f'https://myanimelist.net/anime/{anime_title}/reviews'
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        reviews = soup.find_all('div', class_='borderDark')
-        for review in reviews:
-            author = review.find('a', class_='hoverinfo_trigger').text.strip()
-            review_content = review.find('div', class_='spaceit').text.strip()
-            source = Source.objects.create(name=url)
-            ExternalReview.objects.create(
-                source=source,
-                anime_title=anime_title,
-                author_name=author,
-                review_text=review_content,
-                # Add other necessary fields here
-            )
+def review_detail(request, review_id):
+    review = get_object_or_404(ExternalReview, pk=review_id)
+    return render(request, 'review_detail.html', {'review': review})
 
+def reviews_by_source(request, source_id):
+    source = get_object_or_404(ExternalSource, pk=source_id)
+    reviews = ExternalReview.objects.filter(source=source)
+    return render(request, 'reviews_by_source.html', {'source': source, 'reviews': reviews})
 
-def external_source(request):
-    anime_title = request.GET.get('anime_title')
-    if anime_title:
-        fetch_external_reviews(anime_title)  # Assuming this function stores reviews in the database
-        reviews = ExternalReview.objects.filter(anime_title=anime_title)
-        return render(request, 'eternal_source_reviews.html', {'reviews': reviews})
-    return render(request, 'external_source_reviews.html')
+def reviews_by_anime_title(request):
+    anime_title = request.GET.get('anime-title')
+    sources = ExternalSource.objects.all()
+    try:
+        if anime_title:
+            reviews = ExternalReview.objects.filter(external_title__title__icontains=anime_title)
+        else:
+            reviews = ExternalReview.objects.all()
+        
+        if reviews:
+            return render(request, 'external_source_reviews.html', {'reviews': reviews, 'sources': sources})
+        else:
+            print("There are no reviews available for the provided anime title.")
+            return render(request, 'external_source_reviews.html', {'reviews': []})
+    except ExternalReview.DoesNotExist:
+        print("This anime doesn't have any external review at the moment")
+    
