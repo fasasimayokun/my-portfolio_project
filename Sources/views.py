@@ -15,6 +15,25 @@ def reviews_by_source(request, source_id):
     reviews = ExternalReview.objects.filter(source=source)
     return render(request, 'reviews_by_source.html', {'source': source, 'reviews': reviews})
 
+def reviews_by_filter(request):
+    # Get the filter criteria from the request
+    filter_criteria = request.GET.get('filter_criteria')
+
+    # Initialize the queryset
+    reviews = ExternalReview.objects.all()
+    sources = ExternalSource.objects.all()
+
+    # Apply the filter based on the selected criteria
+    if filter_criteria == 'recent':
+        # Filter by recent date
+        reviews = reviews.order_by('-created_at')  # Most recent first
+    elif filter_criteria == 'oldest':
+        # Filter by old date
+        reviews = reviews.order_by('created_at')   # Oldest first
+
+    # Render the template with filtered reviews
+    return render(request, 'external_source_reviews.html', {'reviews': reviews, 'sources': sources})
+    
 def reviews_by_anime_title(request):
     anime_title = request.GET.get('anime-title')
     sources = ExternalSource.objects.all()

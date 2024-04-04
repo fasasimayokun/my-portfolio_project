@@ -11,6 +11,8 @@ from Reviews.models import Review, Rating
 from Reviews.forms import ReviewForm, RatingForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.generic.edit import DeleteView
+from django.urls import reverse_lazy
 import requests
 
 # Create your views here.
@@ -95,11 +97,21 @@ def anime_reviews_update(request, review_id):
         return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)  # Redirect to some other page or handle unauthorized access
 
 
-def anime_review_delete(request, review_id):
-    review = get_object_or_404(Review, pk=review_id)
-    anime_title_id = review.anime_title_id
-    review.delete()
-    return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)
+# def anime_review_delete(request, review_id):
+#     review = get_object_or_404(Review, pk=review_id)
+#     anime_title_id = review.anime_title_id
+#     review.delete()
+#     return redirect('anime-reviews-list', anime_title_id=review.anime_title_id)
+
+class ReviewDeleteView(DeleteView):
+    model = Review
+
+    def get_success_url(self):
+        # Get the anime_title_id of the deleted review
+        anime_title_id = self.object.anime_title_id
+        # Construct the success URL with the anime_title_id
+        success_url = reverse_lazy('anime-reviews-list', kwargs={'anime_title_id': anime_title_id})
+        return success_url
 
 
 def anime_title_list(request):

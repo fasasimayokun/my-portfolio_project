@@ -2,34 +2,43 @@
 {% block content %}
 <body style="background-color: #f8f9fa;">
     <div class="container">
-        {%for source in sources %}
-            <h1 class="text-center mt-5">Reviews from {{ source.name }} website</h1>
-        {% endfor %}
-        <div class="row justify-content-center mt-5">
-            <div class="col-lg-8">
-                <div class="card p-4">
-                    <ul class="list-unstyled">
-                        {% for review in reviews %}
-                            <li class="media mb-4 border-bottom pb-3">
-                                <div class="media-body">
-                                    <h5 class="mt-0 mb-1">{{review.external_user }}</h5>
-                                    <h6>{{review.external_title}}</h6>
-                                    <p>{{review.review_text}}</p>
-                                    <small>Written on: {{ review.created_at }}</small>
-                                    <br>
-                            </li>
-                        {% empty %}
-                            <li>No reviews available.</li>
-                        {% endfor %}
-                    </ul>
+       
+            <div class="row mt-5">
+                <div class="col-lg-3">
+                    <form method="get" action="{% url 'reviews_by_filter' %}">
+                        <div class="mb-3">
+                            <label for="filter_criteria" class="form-label">Filter by:</label>
+                            <select name="filter_criteria" id="filter_criteria" class="form-select">
+                                <option value="recent">Most Recent</option>
+                                <option value="oldest">Oldest</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </form>
+                </div>
+        
+                <div class="col-lg-9">
+                    {% for source in sources %}
+                        <h3>Reviews from {{ source.name }} website</h3>
+                    {% endfor %}
+                    <div class="card p-4">
+                        <ul class="list-unstyled">
+                            {% for review in reviews %}
+                                <li class="media mb-4 border-bottom pb-3">
+                                    <div class="media-body">
+                                        <h5 class="mt-0 mb-1">{{ review.external_user }}</h5>
+                                        <h6>{{ review.external_title }}</h6>
+                                        <p>{{ review.review_text }}</p>
+                                        <small>Written on: {{ review.created_at }}</small>
+                                        <br>
+                                </li>
+                            {% empty %}
+                                <li>No reviews available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-{% for review in reviews%}
-    External Username: <br>
-    External Anime Title: <br>
-    External Reviews:  <br><br>
-{% endfor %}
-    </div>
 </body>
 {% endblock %}
