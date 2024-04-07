@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+<body style="background-color: #f8f9fa;">
+        <div class="container">
+       
+            <div class="row mt-5">
+                <div class="col-lg-3">
+                    <form method="get" action="{% url 'reviews_by_filter' %}" class="d-flex">
+                        <div class="mb-3 me-2 flex-grow-1">
+                            <label for="filter_criteria" class="form-label">Filter by:</label>
+                            <select name="filter_criteria" id="filter_criteria" class="form-select">
+                                <option value="recent">Most Recent</option>
+                                <option value="oldest">Oldest</option>
+                            </select>
+                        </div>
+                     
+                        <button type="submit" class="btn btn-primary align-self-center">Filter</button>
+                        
+                    </form>
+                </div>
+                <div class="col-lg-3">
+                    <form method="get" action="{% url 'reviews-by-anime-title' %}" class="d-flex">
+                        <div class="mb-3 me-2 flex-grow-1">
+                            <label for="search_anime_title" class="form-label">Search by Anime Title:</label>
+                            <input type="text" name="anime_title" id="search_anime_title" class="form-control">
+                            <div id="suggestions"></div> <!-- Container for autocomplete suggestions -->
+                        </div>
+                        <button type="submit" class="btn btn-primary align-self-center">Search</button>
+                    </form>
+                </div>
+        
+                <div class="col-lg-9">
+                    {% for source in sources %}
+                        <h3>Reviews from {{ source.name }} website</h3>
+                    {% endfor %}
+                    <div class="card p-4">
+                        <ul class="list-unstyled">
+                            {% for review in reviews %}
+                                <li class="media mb-4 border-bottom pb-3">
+                                    <div class="media-body">
+                                        <h5 class="mt-0 mb-1">{{ review.external_user }}</h5>
+                                        <h6>{{ review.external_title }}</h6>
+                                        <p>{{ review.review_text }}</p>
+                                        <small>Written on: {{ review.created_at }}</small>
+                                        <br>
+                                </li>
+                            {% empty %}
+                                <li>No reviews available. <a class='btn btn-primary' href="{% url 'reviews-by-anime-title' %}">click here for more reviews from external website</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#search_anime_title').keyup(function() {
+        var query = $(this).val();
+        if (query.length > 2) { // Start fetching suggestions after typing at least 3 characters
+            $.ajax({
+                url: '/autocomplete/', // URL endpoint for autocomplete suggestions
+                method: 'GET',
+                data: { query: query },
+                success: function(response) {
+                    $('#suggestions').html(response); // Populate suggestions in the container
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        } else {
+            $('#suggestions').html(''); // Clear suggestions if query length is less than 3
+        }
+    });
+});
+// $(document).ready(function() {
+//     $('#search_anime_title').on('input', function() {
+//         var query = $(this).val();
+//         $.ajax({
+//             url: '/autocomplete/',
+//             data: { query: query },
+//             success: function(data) {
+//                 displaySuggestions(data);
+//             }
+//         });
+//     });
+
+//     function displaySuggestions(suggestions) {
+//         var suggestionsContainer = $('#suggestions');
+//         suggestionsContainer.empty();
+//         $.each(suggestions, function(index, suggestion) {
+//             suggestionsContainer.append('<div class="suggestion">' + suggestion + '</div>');
+//         });
+//     }
+// });
+</script>
+{% endblock %}

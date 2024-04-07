@@ -20,6 +20,9 @@
               <a class="nav-link" href="{% url 'anime-title-list' %}">Anime Titles</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="{% url 'reviews_by_filter' %}?anime_title={{ anime_title }}">external reviews</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
             
@@ -37,7 +40,7 @@
   </nav>
   <div class="container">
 
-    {% for message in messages %}
+            {% for message in messages %}
 
                 {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
 

@@ -2,25 +2,15 @@
 {% block content %}
 <body style="background-color: #f8f9fa;">
     <div class="container">
-       
-            <div class="row mt-5">
-                <div class="col-lg-3">
-                    <form method="get" action="{% url 'reviews_by_filter' %}">
-                        <div class="mb-3">
-                            <label for="filter_criteria" class="form-label">Filter by:</label>
-                            <select name="filter_criteria" id="filter_criteria" class="form-select">
-                                <option value="recent">Most Recent</option>
-                                <option value="oldest">Oldest</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Filter</button>
-                    </form>
-                </div>
+
         
                 <div class="col-lg-9">
                     {% for source in sources %}
                         <h3>Reviews from {{ source.name }} website</h3>
                     {% endfor %}
+                    <!-- {% if reviews%}
+                        <a class='btn btn-primary' align='left' href="{% url 'reviews_by_filter' %}?anime_title={{ anime_title }}">click here for more reviews from external website</a>
+                    {%endif%} -->
                     <div class="card p-4">
                         <ul class="list-unstyled">
                             {% for review in reviews %}
@@ -33,7 +23,7 @@
                                         <br>
                                 </li>
                             {% empty %}
-                                <li>No reviews available.</li>
+                                <li>No reviews available. </li><a class='btn btn-primary' href="{% url 'reviews_by_filter' %}?anime_title={{ anime_title }}">click here for more reviews from external website</a>
                             {% endfor %}
                         </ul>
                     </div>
