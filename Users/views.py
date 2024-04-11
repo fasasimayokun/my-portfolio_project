@@ -10,6 +10,9 @@ from .forms import UserLoginForm, UserForm, ProfileForm
 def welcome_view(request):
     return render(request, 'welcome.html')
 
+def landing_page(request):
+    return render(request, 'landingpage.html')
+
 # class WelcomeView(TemplateView):
 #     template_name = 'welcome.html'
 

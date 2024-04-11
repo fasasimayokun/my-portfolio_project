@@ -1,0 +1,60 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('{% static 'images/Berserker.PNG' %}'); /* Background image */
+    background-size: cover; /* Cover the entire background */
+    background-position: center; /* Center the background image */
+}
+
+header {
+    text-align: center;
+    padding: 50px 0;
+    background-color: #2c3e50; /* Dark blue background */
+    color: #fff; /* White text color */
+}
+
+.features {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.features ul {
+    list-style-type: none; /* Remove default bullet points */
+    padding-left: 0; /* Remove default padding */
+}
+
+.features li {
+    color: #333; /* Set text color */
+    margin-bottom: 20px; /* Add spacing between list items */
+}
+
+.cta {
+    text-align: center;
+    padding: 50px 0;
+    background-color: #2c3e50; /* Dark blue background */
+    color: #fff; /* White text color */
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3498db; /* Blue button */
+    color: #fff; /* White text color */
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #2980b9; /* Darker shade on hover */
+}
+
+footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #333; /* Dark gray background */
+    color: #fff; /* White text color */
+}
