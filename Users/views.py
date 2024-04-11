@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic.base import TemplateView
 from .forms import UserLoginForm, UserForm, ProfileForm
 
-
 # Create your views here.
+@login_required
+def welcome_view(request):
+    return render(request, 'welcome.html')
 
-class WelcomeView(TemplateView):
-    template_name = 'welcome.html'
+# class WelcomeView(TemplateView):
+#     template_name = 'welcome.html'
 
 def user_login(request):
 
