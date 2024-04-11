@@ -5,7 +5,7 @@
 AnimeReviewHub is a platform designed for anime enthusiasts to write and view reviews from multiple sites. It allows users to share their opinions on various anime series, edit and delete their own reviews, and discover reviews from other users.
 
 ### Links:
-- **Deployed Site:** [AnimeReviewHub](https://www.animereviewhub.com)
+- **Deployed Site:** [AnimeReviewHub](http://fasasimayokun.pythonanywhere.com/)
 - **Final Project Blog Article:** [AnimeReviewHub: Bringing Anime Reviews Together](https://medium.com/@maykay.fash/animereviewhub-fd82d90c9414)
 - **Author(s) LinkedIn:** [Mayokun Fasasi](https://www.linkedin.com/in/mayokun-fasasi-9b239718b/)
 
